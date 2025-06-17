@@ -1,0 +1,32 @@
+# Load data for Africa
+africa <- rnaturalearth::ne_countries(continent = "Africa", scale = "medium", returnclass = "sf")
+
+# Get populated places and filter for capital cities in Africa
+cities <- rnaturalearth::ne_download(
+  scale = "medium",
+  type = "populated_places",
+  category = "cultural",
+  returnclass = "sf"
+)
+
+african_capitals <- cities %>%
+  filter(ADM0NAME %in% africa$name, FEATURECLA == "Admin-0 capital")
+
+# Build interactive map
+leaflet() %>%
+  addProviderTiles("CartoDB.Positron") %>%
+  addPolygons(
+    data = africa,
+    fillColor = "lightblue",
+    color = "darkblue",
+    weight = 1,
+    fillOpacity = 0.5,
+    label = ~name
+  ) %>%
+  addCircleMarkers(
+    data = african_capitals,
+    radius = 5,
+    color = "red",
+    fillOpacity = 0.8,
+    popup = ~paste0("<b>", NAME, "</b><br><i>", ADM0NAME, "</i>")
+  )
